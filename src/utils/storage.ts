@@ -5,13 +5,24 @@ const SAVE_KEY = 'spire_of_azure_save_v1';
 const LOCAL_FALLBACK_KEY = 'spire_of_azure_save_mirror_v1';
 export const CURRENT_SCHEMA_VERSION = 1;
 
+function getDefaultTrackForHost(): 'az-900' | 'aipc' {
+  if (typeof window !== 'undefined') {
+    const path = window.location.pathname.toLowerCase();
+    const search = window.location.search.toLowerCase();
+    if (path.includes('ai-product') || path.includes('ai-pm') || search.includes('track=aipc')) {
+      return 'aipc';
+    }
+  }
+  return 'az-900';
+}
+
 export function createDefaultProfile(): PlayerSaveProfile {
   const now = Date.now();
   return {
     schemaVersion: CURRENT_SCHEMA_VERSION,
     createdAt: now,
     updatedAt: now,
-    selectedTrack: 'az-900',
+    selectedTrack: getDefaultTrackForHost(),
     selectedClass: 'vanguard',
     selectedAscension: 0,
     unlockedClasses: ['vanguard'],
