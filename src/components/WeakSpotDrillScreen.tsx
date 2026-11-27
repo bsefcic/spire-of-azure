@@ -90,8 +90,8 @@ export const WeakSpotDrillScreen: React.FC<WeakSpotDrillScreenProps> = ({
 
       {/* Track Filter */}
       <div className="mb-3 flex items-center justify-between gap-2">
-        <div className="flex gap-1.5">
-          {(['az-900', 'az-104', 'all'] as const).map((t) => (
+        <div className="flex flex-wrap gap-1.5">
+          {(['az-900', 'az-104', 'aipc', 'all'] as const).map((t) => (
             <button
               key={t}
               type="button"
@@ -101,13 +101,13 @@ export const WeakSpotDrillScreen: React.FC<WeakSpotDrillScreenProps> = ({
                 setPhase('question');
                 setCurrentIndex(0);
               }}
-              className={`rounded-lg border px-3 py-1.5 text-xs font-bold uppercase transition ${
+              className={`rounded-lg border px-2.5 py-1.5 text-xs font-bold uppercase transition ${
                 filterTrack === t
                   ? 'border-amber-400 bg-amber-500/20 text-amber-200'
                   : 'border-slate-800 bg-slate-950 text-slate-400'
               }`}
             >
-              {t}
+              {t === 'aipc' ? 'AI PM' : t}
             </button>
           ))}
         </div>

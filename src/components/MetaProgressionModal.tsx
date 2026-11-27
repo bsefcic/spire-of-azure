@@ -2,6 +2,7 @@ import React from 'react';
 import { Award, Check, Lock, Sparkles, X } from 'lucide-react';
 import { ArchitectClassId, MetaUpgradeLevels, PlayerSaveProfile } from '../types/game';
 import { ARCHITECT_CLASSES } from '../data/gameContent';
+import { AIPC_CLASS_OVERLAYS, isAiPmTrack } from '../data/pmOverlay';
 import { sfx } from '../utils/audioHaptics';
 
 interface MetaProgressionModalProps {
@@ -61,12 +62,18 @@ export const MetaProgressionModal: React.FC<MetaProgressionModalProps> = ({
   onBuyUpgrade,
   onClose
 }) => {
+  const isPm = isAiPmTrack(profile.selectedTrack);
+
   return (
     <div className="min-h-[calc(100dvh-3.5rem)] bg-black px-3.5 py-3 safe-bottom">
       <div className="mb-3 flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-black text-white">Cloud Center of Excellence</h2>
-          <p className="text-xs text-slate-400">Permanent Architect Classes & QoL Perks</p>
+          <h2 className="text-lg font-black text-white">
+            {isPm ? 'AI Product Guild' : 'Cloud Center of Excellence'}
+          </h2>
+          <p className="text-xs text-slate-400">
+            {isPm ? 'Permanent PM Archetypes & Sprint Perks' : 'Permanent Architect Classes & QoL Perks'}
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <span className="flex items-center gap-1 rounded-xl border border-purple-500/40 bg-purple-500/15 px-3 py-1.5 text-xs font-black text-purple-200">
@@ -82,14 +89,16 @@ export const MetaProgressionModal: React.FC<MetaProgressionModalProps> = ({
         </div>
       </div>
 
-      {/* Architect Classes */}
+      {/* Classes */}
       <div className="mb-4 space-y-2">
         <h3 className="text-xs font-bold uppercase tracking-wider text-sky-400">
-          Playable Architect Classes
+          {isPm ? 'Playable AI PM Archetypes' : 'Playable Architect Classes'}
         </h3>
         {ARCHITECT_CLASSES.map((cls) => {
           const unlocked = profile.unlockedClasses.includes(cls.id);
           const canAfford = profile.migrationCredits >= cls.unlockCostCredits;
+          const dispName = isPm ? AIPC_CLASS_OVERLAYS[cls.id].name : cls.name;
+          const dispDesc = isPm ? AIPC_CLASS_OVERLAYS[cls.id].description : cls.description;
           return (
             <div
               key={cls.id}
@@ -97,7 +106,7 @@ export const MetaProgressionModal: React.FC<MetaProgressionModalProps> = ({
             >
               <div className="mb-1 flex items-center justify-between">
                 <div>
-                  <span className={`text-sm font-black ${cls.accentColor}`}>{cls.name}</span>
+                  <span className={`text-sm font-black ${cls.accentColor}`}>{dispName}</span>
                   <span className="ml-2 text-[11px] text-slate-400">({cls.maxHp} Base HP)</span>
                 </div>
                 {unlocked ? (
@@ -118,7 +127,7 @@ export const MetaProgressionModal: React.FC<MetaProgressionModalProps> = ({
                   </button>
                 )}
               </div>
-              <p className="text-xs text-slate-300">{cls.description}</p>
+              <p className="text-xs text-slate-300">{dispDesc}</p>
             </div>
           );
         })}
@@ -127,13 +136,22 @@ export const MetaProgressionModal: React.FC<MetaProgressionModalProps> = ({
       {/* Permanent Meta Upgrades */}
       <div className="space-y-2 pb-6">
         <h3 className="text-xs font-bold uppercase tracking-wider text-purple-400">
-          Permanent Infrastructure Perks
+          {isPm ? 'Permanent Product Leadership Perks' : 'Permanent Infrastructure Perks'}
         </h3>
         {UPGRADE_DEFS.map((u) => {
           const currentLvl = profile.metaUpgrades[u.key] || 0;
           const maxed = currentLvl >= u.maxLevel;
           const nextCost = u.baseCost + currentLvl * 35;
           const canAfford = !maxed && profile.migrationCredits >= nextCost;
+          const pmTitles: Partial<Record<keyof MetaUpgradeLevels, { title: string; desc: string }>> = {
+            hullPlating: { title: 'Stakeholder Trust Buffer', desc: '+4 Starting & Max HP per level on all runs.' },
+            awsTranslator: { title: 'Product Sense Co-Pilot', desc: '+1 Starting PM Hint Charge per run.' },
+            startingCache: { title: 'Seed R&D Budget', desc: '+35 Starting Gold per level for AI Tooling Stack shops.' },
+            slaBuffer: { title: 'Sprint Post-Mortem Heal', desc: 'Restore +6 bonus HP automatically after defeating every Module Boss.' },
+            cardRarityBoost: { title: 'Frontier Model Catalog', desc: 'Increases Uncommon & Ultimate card appearance rate in drafts.' }
+          };
+          const title = isPm && pmTitles[u.key] ? pmTitles[u.key]!.title : u.title;
+          const desc = isPm && pmTitles[u.key] ? pmTitles[u.key]!.desc : u.desc;
 
           return (
             <div
@@ -142,12 +160,12 @@ export const MetaProgressionModal: React.FC<MetaProgressionModalProps> = ({
             >
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-extrabold text-white">{u.title}</span>
+                  <span className="text-sm font-extrabold text-white">{title}</span>
                   <span className="rounded bg-slate-900 px-2 py-0.5 text-[10px] font-bold text-sky-300">
                     Lv {currentLvl}/{u.maxLevel}
                   </span>
                 </div>
-                <p className="mt-0.5 text-xs text-slate-400">{u.desc}</p>
+                <p className="mt-0.5 text-xs text-slate-400">{desc}</p>
               </div>
 
               <button

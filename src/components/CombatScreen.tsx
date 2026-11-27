@@ -16,6 +16,7 @@ import {
 import { ExamQuestion } from '../types/curriculum';
 import { ActiveRun, GameCard, QuestionMasteryRecord } from '../types/game';
 import { ALL_RELICS, ENEMY_TEMPLATES } from '../data/gameContent';
+import { getCardDisplayForTrack, getRelicDisplayForTrack, isAiPmTrack } from '../data/pmOverlay';
 import { getEffectiveCardStats } from '../engine/roguelike';
 import { QuestionCardView } from './QuestionCardView';
 import { FeedbackDrawer } from './FeedbackDrawer';
@@ -127,8 +128,9 @@ export const CombatScreen: React.FC<CombatScreenProps> = ({
         <div className="flex items-center justify-between gap-2">
           <div className="flex flex-wrap items-center gap-1.5">
             {run.relicIds.map((rid) => {
-              const relic = ALL_RELICS.find((r) => r.id === rid);
-              if (!relic) return null;
+              const rawRelic = ALL_RELICS.find((r) => r.id === rid);
+              if (!rawRelic) return null;
+              const relic = getRelicDisplayForTrack(rawRelic, run.track);
               return (
                 <button
                   key={rid}
@@ -142,18 +144,21 @@ export const CombatScreen: React.FC<CombatScreenProps> = ({
             })}
           </div>
           <span className="shrink-0 text-[11px] font-bold text-slate-400">
-            Act {run.act}/{run.totalActs} • Turn {combat.turn}
+            {isAiPmTrack(run.track) ? 'Mod' : 'Act'} {run.act}/{run.totalActs} • Turn {combat.turn}
           </span>
         </div>
 
-        {selectedRelicTip && (
-          <div className="rounded-xl border border-sky-500/30 bg-slate-950 px-3 py-2 text-xs text-slate-200">
-            <strong className="text-sky-400">
-              {ALL_RELICS.find((r) => r.id === selectedRelicTip)?.name}:{' '}
-            </strong>
-            {ALL_RELICS.find((r) => r.id === selectedRelicTip)?.description}
-          </div>
-        )}
+        {selectedRelicTip && (() => {
+          const found = ALL_RELICS.find((r) => r.id === selectedRelicTip);
+          if (!found) return null;
+          const disp = getRelicDisplayForTrack(found, run.track);
+          return (
+            <div className="rounded-xl border border-sky-500/30 bg-slate-950 px-3 py-2 text-xs text-slate-200">
+              <strong className="text-sky-400">{disp.name}: </strong>
+              {disp.description}
+            </div>
+          );
+        })()}
 
         {/* ENEMY HUD CARD */}
         <div
@@ -327,6 +332,7 @@ export const CombatScreen: React.FC<CombatScreenProps> = ({
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
               {combat.hand.map((card) => {
                 const { stats, dmg, blk, hits } = computeLiveCardPreview(card);
+                const disp = getCardDisplayForTrack(card, run.track);
                 const playable = combat.energy >= stats.cost;
                 const borderStyle =
                   card.type === 'attack'
@@ -367,14 +373,14 @@ export const CombatScreen: React.FC<CombatScreenProps> = ({
                             card.upgraded ? 'text-emerald-300' : 'text-white'
                           }`}
                         >
-                          {stats.name}
+                          {disp.name}
                         </span>
                         <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-sky-500 text-[11px] font-black text-slate-950">
                           {stats.cost}
                         </span>
                       </div>
                       <div className="mb-1.5 text-[10px] font-medium text-sky-300/80">
-                        {card.azureTag}
+                        {disp.tag}
                       </div>
                       <p className="text-[11px] leading-snug text-slate-200">{stats.description}</p>
                     </div>
@@ -405,11 +411,16 @@ export const CombatScreen: React.FC<CombatScreenProps> = ({
               <div className="flex items-center gap-2">
                 <Trophy className="h-5 w-5 text-amber-400" />
                 <div>
-                  <h3 className="text-base font-extrabold text-white">Architecture Stabilized!</h3>
+                  <h3 className="text-base font-extrabold text-white">
+                    {isAiPmTrack(run.track) ? 'Sprint Blocker Cleared!' : 'Architecture Stabilized!'}
+                  </h3>
                   <p className="text-xs text-emerald-300">
                     Earned +{run.rewardGold} Gold{' '}
-                    {run.rewardRelicId &&
-                      `• Relic: ${ALL_RELICS.find((r) => r.id === run.rewardRelicId)?.name}`}
+                    {run.rewardRelicId && (() => {
+                      const raw = ALL_RELICS.find((r) => r.id === run.rewardRelicId);
+                      if (!raw) return '';
+                      return `• Relic: ${getRelicDisplayForTrack(raw, run.track).name}`;
+                    })()}
                   </p>
                 </div>
               </div>
@@ -418,20 +429,28 @@ export const CombatScreen: React.FC<CombatScreenProps> = ({
               </span>
             </div>
 
-            {run.rewardRelicId && (
-              <div className="mb-3 rounded-xl border border-purple-500/35 bg-purple-950/25 p-2.5 text-xs text-purple-200">
-                <Sparkles className="mr-1 inline h-3.5 w-3.5 text-purple-400" />
-                <strong>New Relic Equipped — {ALL_RELICS.find((r) => r.id === run.rewardRelicId)?.name}:</strong>{' '}
-                {ALL_RELICS.find((r) => r.id === run.rewardRelicId)?.description}
-              </div>
-            )}
+            {run.rewardRelicId && (() => {
+              const raw = ALL_RELICS.find((r) => r.id === run.rewardRelicId);
+              if (!raw) return null;
+              const dispRelic = getRelicDisplayForTrack(raw, run.track);
+              return (
+                <div className="mb-3 rounded-xl border border-purple-500/35 bg-purple-950/25 p-2.5 text-xs text-purple-200">
+                  <Sparkles className="mr-1 inline h-3.5 w-3.5 text-purple-400" />
+                  <strong>New Relic Equipped — {dispRelic.name}:</strong>{' '}
+                  {dispRelic.description}
+                </div>
+              );
+            })()}
 
             <p className="mb-2 text-xs font-bold text-slate-300">
-              Draft 1 Azure Card into your Deck (or skip to keep deck lean):
+              {isAiPmTrack(run.track)
+                ? 'Draft 1 AI PM Card into your Deck (or skip to keep deck lean):'
+                : 'Draft 1 Azure Card into your Deck (or skip to keep deck lean):'}
             </p>
             <div className="space-y-2">
               {(run.rewardCards || []).map((rc) => {
                 const st = getEffectiveCardStats(rc);
+                const disp = getCardDisplayForTrack(rc, run.track);
                 return (
                   <button
                     key={rc.uid}
@@ -444,9 +463,9 @@ export const CombatScreen: React.FC<CombatScreenProps> = ({
                   >
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-extrabold text-white">{st.name}</span>
+                        <span className="text-sm font-extrabold text-white">{disp.name}</span>
                         <span className="rounded bg-slate-800 px-1.5 py-0.5 text-[10px] text-sky-300">
-                          {rc.azureTag}
+                          {disp.tag}
                         </span>
                       </div>
                       <p className="mt-0.5 text-xs text-slate-300">{st.description}</p>

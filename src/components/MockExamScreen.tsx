@@ -34,8 +34,8 @@ export const MockExamScreen: React.FC<MockExamScreenProps> = ({
   const [startedAtSec, setStartedAtSec] = useState(0);
   const [finishedAttempt, setFinishedAttempt] = useState<MockExamAttempt | null>(null);
 
-  const totalMinutes = selectedTrack === 'az-900' ? 45 : 65;
-  const totalQuestionTarget = selectedTrack === 'az-900' ? 40 : 50;
+  const totalMinutes = selectedTrack === 'az-900' ? 45 : selectedTrack === 'aipc' ? 50 : 65;
+  const totalQuestionTarget = selectedTrack === 'az-900' ? 40 : selectedTrack === 'aipc' ? 45 : 50;
 
   useEffect(() => {
     if (stage !== 'active') return;
@@ -146,21 +146,27 @@ export const MockExamScreen: React.FC<MockExamScreenProps> = ({
           </button>
         </div>
 
-        <div className="mb-4 grid grid-cols-2 gap-2">
-          {(['az-900', 'az-104'] as const).map((t) => (
+        <div className="mb-4 grid grid-cols-3 gap-2">
+          {(['az-900', 'az-104', 'aipc'] as const).map((t) => (
             <button
               key={t}
               type="button"
               onClick={() => setSelectedTrack(t)}
-              className={`rounded-2xl border p-3 text-left transition ${
+              className={`rounded-2xl border p-2.5 text-left transition ${
                 selectedTrack === t
                   ? 'border-sky-400 bg-sky-500/15 text-white'
                   : 'border-slate-800 bg-slate-950 text-slate-400'
               }`}
             >
-              <div className="text-sm font-black uppercase">{t}</div>
-              <div className="text-[11px]">
-                {t === 'az-900' ? '40 Questions • 45 Min' : '50 Questions • 65 Min'}
+              <div className="text-xs font-black uppercase">
+                {t === 'aipc' ? 'AI PM (AIPC)' : t}
+              </div>
+              <div className="text-[10px]">
+                {t === 'az-900'
+                  ? '40 Qs • 45 Min'
+                  : t === 'aipc'
+                    ? '45 Qs • 50 Min'
+                    : '50 Qs • 65 Min'}
               </div>
             </button>
           ))}
@@ -168,9 +174,18 @@ export const MockExamScreen: React.FC<MockExamScreenProps> = ({
 
         <div className="mb-4 rounded-2xl border border-slate-800 bg-slate-950 p-4 text-xs leading-relaxed text-slate-300">
           <ul className="space-y-1.5">
-            <li>• Weighted across official Microsoft Learn exam domains.</li>
+            <li>
+              • Weighted across official{' '}
+              {selectedTrack === 'aipc'
+                ? 'Product School AIPC™ 6 modules'
+                : 'Microsoft Learn exam domains'}
+              .
+            </li>
             <li>• Passing score: <strong className="text-emerald-400">700 / 1000 (70%)</strong>.</li>
-            <li>• No feedback during the test—full AWS Bridge review unlocked at submission.</li>
+            <li>
+              • No feedback during the test—full{' '}
+              {selectedTrack === 'aipc' ? 'Classic PM vs. AI PM' : 'AWS Bridge'} review unlocked at submission.
+            </li>
             <li>• Any missed questions automatically feed into your FSRS Weak-Spot Drill queue!</li>
           </ul>
           <button
@@ -364,7 +379,7 @@ export const MockExamScreen: React.FC<MockExamScreenProps> = ({
       {missedQuestions.length > 0 && (
         <div className="mb-4 space-y-2.5">
           <h3 className="text-xs font-bold uppercase tracking-wider text-rose-300">
-            Missed Scenarios & AWS SAA Breakdown ({missedQuestions.length})
+            Missed Scenarios & {selectedTrack === 'aipc' ? 'AI PM' : 'AWS SAA'} Breakdown ({missedQuestions.length})
           </h3>
           {missedQuestions.map((mq) => (
             <div
@@ -377,7 +392,9 @@ export const MockExamScreen: React.FC<MockExamScreenProps> = ({
                 {mq.explanation}
               </p>
               <p className="rounded-lg border border-amber-500/30 bg-amber-950/20 p-2 text-amber-200">
-                <strong className="text-amber-400">AWS Bridge: </strong>
+                <strong className="text-amber-400">
+                  {mq.track === 'aipc' ? 'Classic vs. AI PM Shift: ' : 'AWS Bridge: '}
+                </strong>
                 {mq.awsComparison}
               </p>
             </div>

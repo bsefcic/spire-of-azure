@@ -101,7 +101,7 @@ export const FeedbackDrawer: React.FC<FeedbackDrawerProps> = ({
       {/* Correct Answer Box */}
       <div className="mb-2.5 rounded-xl border border-slate-800 bg-slate-950/90 p-2.5">
         <div className="mb-1 text-[10px] font-bold uppercase tracking-wider text-emerald-400">
-          Correct Azure Solution
+          {question.track === 'aipc' ? 'Best-Practice AI PM Decision' : 'Correct Azure Solution'}
         </div>
         <div className="whitespace-pre-line text-xs font-semibold text-slate-100">
           {renderCorrectSummary()}
@@ -114,11 +114,15 @@ export const FeedbackDrawer: React.FC<FeedbackDrawerProps> = ({
         {question.explanation}
       </div>
 
-      {/* AWS SAA Bridge & Gotcha Box */}
+      {/* Bridge & Gotcha Box */}
       <div className="mb-3 rounded-xl border border-amber-500/30 bg-amber-950/25 p-2.5 text-xs leading-relaxed text-amber-100/95">
         <div className="mb-0.5 flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider text-amber-400">
           <Layers className="h-3.5 w-3.5" />
-          <span>AWS SAA Equivalent & Gotcha</span>
+          <span>
+            {question.track === 'aipc'
+              ? 'Classic PM vs. AI PM Shift & Gotcha'
+              : 'AWS SAA Equivalent & Gotcha'}
+          </span>
         </div>
         {question.awsComparison}
       </div>

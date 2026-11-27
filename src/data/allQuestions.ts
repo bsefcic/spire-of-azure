@@ -7,6 +7,12 @@ import { AZ104_ACT2_QUESTIONS } from './questions/az104Act2';
 import { AZ104_ACT3_QUESTIONS } from './questions/az104Act3';
 import { AZ104_ACT4_QUESTIONS } from './questions/az104Act4';
 import { AZ104_ACT5_QUESTIONS } from './questions/az104Act5';
+import { AIPC_ACT1_QUESTIONS } from './questions/aipcAct1';
+import { AIPC_ACT2_QUESTIONS } from './questions/aipcAct2';
+import { AIPC_ACT3_QUESTIONS } from './questions/aipcAct3';
+import { AIPC_ACT4_QUESTIONS } from './questions/aipcAct4';
+import { AIPC_ACT5_QUESTIONS } from './questions/aipcAct5';
+import { AIPC_ACT6_QUESTIONS } from './questions/aipcAct6';
 
 export const ALL_EXAM_QUESTIONS: ExamQuestion[] = [
   ...AZ900_ACT1_QUESTIONS,
@@ -16,5 +22,11 @@ export const ALL_EXAM_QUESTIONS: ExamQuestion[] = [
   ...AZ104_ACT2_QUESTIONS,
   ...AZ104_ACT3_QUESTIONS,
   ...AZ104_ACT4_QUESTIONS,
-  ...AZ104_ACT5_QUESTIONS
+  ...AZ104_ACT5_QUESTIONS,
+  ...AIPC_ACT1_QUESTIONS,
+  ...AIPC_ACT2_QUESTIONS,
+  ...AIPC_ACT3_QUESTIONS,
+  ...AIPC_ACT4_QUESTIONS,
+  ...AIPC_ACT5_QUESTIONS,
+  ...AIPC_ACT6_QUESTIONS
 ];

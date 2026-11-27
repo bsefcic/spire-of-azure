@@ -4,7 +4,7 @@ import { QuestionMasteryRecord } from '../types/game';
 export interface DomainMeta {
   id: DomainId;
   track: ExamTrack;
-  act: 1 | 2 | 3 | 4 | 5;
+  act: 1 | 2 | 3 | 4 | 5 | 6;
   shortName: string;
   fullName: string;
   weightPct: number;
@@ -18,7 +18,13 @@ export const DOMAIN_META: DomainMeta[] = [
   { id: 'az104-storage', track: 'az-104', act: 2, shortName: 'Storage Accounts', fullName: 'Act 2: Implement & Manage Storage', weightPct: 18 },
   { id: 'az104-compute', track: 'az-104', act: 3, shortName: 'Compute & Containers', fullName: 'Act 3: Deploy & Manage Compute Resources', weightPct: 23 },
   { id: 'az104-networking', track: 'az-104', act: 4, shortName: 'Virtual Networking', fullName: 'Act 4: Implement & Manage Virtual Networking', weightPct: 22 },
-  { id: 'az104-monitoring', track: 'az-104', act: 5, shortName: 'Monitor & Backup', fullName: 'Act 5: Monitor & Maintain Azure Resources', weightPct: 15 }
+  { id: 'az104-monitoring', track: 'az-104', act: 5, shortName: 'Monitor & Backup', fullName: 'Act 5: Monitor & Maintain Azure Resources', weightPct: 15 },
+  { id: 'aipc-foundations', track: 'aipc', act: 1, shortName: 'AI & GenAI Basics', fullName: 'Module 1: AI & GenAI Foundations for PMs', weightPct: 16 },
+  { id: 'aipc-strategy', track: 'aipc', act: 2, shortName: 'Strategy & ROI', fullName: 'Module 2: AI Strategy, ROI & Unit Economics', weightPct: 17 },
+  { id: 'aipc-ux', track: 'aipc', act: 3, shortName: 'AI-Native UX', fullName: 'Module 3: AI-Native UX & Human-Centered Trust', weightPct: 16 },
+  { id: 'aipc-prds-prompts', track: 'aipc', act: 4, shortName: 'PRDs, Prompts & RAG', fullName: 'Module 4: GenAI PRDs, Prompting & RAG vs Fine-Tune', weightPct: 18 },
+  { id: 'aipc-prototyping-agents', track: 'aipc', act: 5, shortName: 'Prototyping & Agents', fullName: 'Module 5: Low-Code Prototyping & AI Agents', weightPct: 16 },
+  { id: 'aipc-evals-ethics-gtm', track: 'aipc', act: 6, shortName: 'Evals, Safety & GTM', fullName: 'Module 6: Evals, Safety, Ethics & Go-To-Market', weightPct: 17 }
 ];
 
 export function updateMasteryRecord(
@@ -104,13 +110,14 @@ export function pickNextQuestion({
   const recentSet = new Set(recentIds);
 
   let candidates = pool.filter((q) => {
-    if (track !== 'mixed' && q.track !== track) return false;
-    if (act !== undefined && track !== 'mixed' && q.act !== act) return false;
+    if (track === 'mixed') return q.track !== 'aipc';
+    if (q.track !== track) return false;
+    if (act !== undefined && q.act !== act) return false;
     return true;
   });
 
   if (candidates.length === 0) {
-    candidates = pool.filter((q) => track === 'mixed' || q.track === track);
+    candidates = pool.filter((q) => (track === 'mixed' ? q.track !== 'aipc' : q.track === track));
   }
   if (candidates.length === 0) {
     candidates = pool;
@@ -285,7 +292,7 @@ export function computeTrackReadiness(
 }
 
 export function buildMockExamQuestions(pool: ExamQuestion[], track: ExamTrack): ExamQuestion[] {
-  const targetCount = track === 'az-900' ? 40 : 50;
+  const targetCount = track === 'az-900' ? 40 : track === 'aipc' ? 45 : 50;
   const domains = DOMAIN_META.filter((d) => d.track === track);
   const selected: ExamQuestion[] = [];
   const usedIds = new Set<string>();

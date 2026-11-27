@@ -1,4 +1,4 @@
-export type ExamTrack = 'az-900' | 'az-104';
+export type ExamTrack = 'az-900' | 'az-104' | 'aipc';
 
 export type DomainId =
   | 'az900-concepts'
@@ -8,12 +8,18 @@ export type DomainId =
   | 'az104-storage'
   | 'az104-compute'
   | 'az104-networking'
-  | 'az104-monitoring';
+  | 'az104-monitoring'
+  | 'aipc-foundations'
+  | 'aipc-strategy'
+  | 'aipc-ux'
+  | 'aipc-prds-prompts'
+  | 'aipc-prototyping-agents'
+  | 'aipc-evals-ethics-gtm';
 
 export type QuestionFormat =
   | 'single'      // Standard 4-option single choice
   | 'multi'       // Select N correct options (e.g., Select 2)
-  | 'yes-no'      // Microsoft 3-statement Yes/No evaluation matrix
+  | 'yes-no'      // 3-statement Yes/No evaluation matrix
   | 'sequence';   // Order steps / hierarchy from top to bottom
 
 export interface YesNoStatement {
@@ -24,7 +30,7 @@ export interface YesNoStatement {
 export interface ExamQuestion {
   id: string;
   track: ExamTrack;
-  act: 1 | 2 | 3 | 4 | 5;
+  act: 1 | 2 | 3 | 4 | 5 | 6;
   domain: DomainId;
   subtopic: string;
   difficulty: 1 | 2 | 3; // 1 = Core, 2 = Scenario, 3 = Elite/Case Study
@@ -47,10 +53,10 @@ export interface ExamQuestion {
   // Pre-answer subtle hint (consumes Hint Charge / Relic; never reveals exact answer letter)
   awsBridgeHint: string;
 
-  // Post-answer crisp Microsoft exam explanation
+  // Post-answer crisp explanation
   explanation: string;
 
-  // Post-answer AWS Solutions Architect Associate comparison & migration gotcha
+  // Post-answer comparison & gotcha (AWS Bridge for Cloud, Classic PM vs AI PM Shift for AIPC)
   awsComparison: string;
 }
 
@@ -65,7 +71,7 @@ export interface BriefingCard {
 export interface ActIntelBriefing {
   id: string;
   track: ExamTrack;
-  act: 1 | 2 | 3 | 4 | 5;
+  act: 1 | 2 | 3 | 4 | 5 | 6;
   domain: DomainId;
   title: string;
   subtitle: string;
@@ -74,12 +80,29 @@ export interface ActIntelBriefing {
   cards: BriefingCard[];
 }
 
+export type RosettaCategory =
+  | 'Compute & Containers'
+  | 'Networking & Delivery'
+  | 'Storage'
+  | 'Databases & Cache'
+  | 'Identity & Security'
+  | 'Governance & IaC'
+  | 'Messaging & Serverless'
+  | 'Monitoring & DR'
+  | 'AI Foundations & Models'
+  | 'AI Strategy & Economics'
+  | 'AI-Native UX & Trust'
+  | 'PRDs, Prompts & RAG'
+  | 'Agents & Prototyping'
+  | 'Evals, Ethics & GTM';
+
 export interface RosettaServiceRow {
   id: string;
-  category: 'Compute & Containers' | 'Networking & Delivery' | 'Storage' | 'Databases & Cache' | 'Identity & Security' | 'Governance & IaC' | 'Messaging & Serverless' | 'Monitoring & DR';
+  category: RosettaCategory;
   awsService: string;
   azureService: string;
-  examTrack: 'Both' | 'AZ-900' | 'AZ-104';
+  examTrack: 'Both' | 'AZ-900' | 'AZ-104' | 'AIPC';
+  trackGroup?: 'cloud' | 'aipm';
   architectGotcha: string;
 }
 
@@ -87,7 +110,7 @@ export interface CheatSheetTable {
   id: string;
   title: string;
   subtitle: string;
-  track: 'Both' | 'AZ-900' | 'AZ-104';
+  track: 'Both' | 'AZ-900' | 'AZ-104' | 'AIPC';
   headers: string[];
   rows: string[][];
   proTip: string;

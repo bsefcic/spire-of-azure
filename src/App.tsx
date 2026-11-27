@@ -18,7 +18,13 @@ import {
 import { ALL_EXAM_QUESTIONS } from './data/allQuestions';
 import { ACT_INTEL_BRIEFINGS } from './data/briefings';
 import { CHEAT_SHEET_TABLES, ROSETTA_SERVICES } from './data/rosettaCodex';
+import {
+  AIPC_CHEAT_SHEETS,
+  AIPC_INTEL_BRIEFINGS,
+  AIPC_ROSETTA_ROWS
+} from './data/aipcBriefingsAndCodex';
 import { ALL_RELICS, ARCHITECT_CLASSES, SLA_ASCENSIONS } from './data/gameContent';
+import { AIPC_ASCENSIONS, AIPC_CLASS_OVERLAYS, isAiPmTrack } from './data/pmOverlay';
 import { ExamQuestion, ExamTrack } from './types/curriculum';
 import {
   ActiveRun,
@@ -321,7 +327,7 @@ export const App: React.FC = () => {
         return;
       } else {
         // Advance to Next Act!
-        const nextAct = (run.act + 1) as 1 | 2 | 3 | 4 | 5;
+        const nextAct = (run.act + 1) as 1 | 2 | 3 | 4 | 5 | 6;
         const postBossHeal =
           Math.round(run.maxHp * 0.35) + profile.metaUpgrades.slaBuffer * 6;
         const awsBadgeBonusHint = run.relicIds.includes('relic-aws-badge') ? 1 : 0;
@@ -493,8 +499,23 @@ export const App: React.FC = () => {
     );
   }
 
+  const allBriefings = useMemo(
+    () => [...ACT_INTEL_BRIEFINGS, ...AIPC_INTEL_BRIEFINGS],
+    []
+  );
+  const allRosettaRows = useMemo(
+    () => [...ROSETTA_SERVICES, ...AIPC_ROSETTA_ROWS],
+    []
+  );
+  const allCheatSheets = useMemo(
+    () => [...CHEAT_SHEET_TABLES, ...AIPC_CHEAT_SHEETS],
+    []
+  );
+
+  const isHubAiPm = isAiPmTrack(activeExamTrackForHub);
+
   const currentActBriefing = profile.activeRun
-    ? ACT_INTEL_BRIEFINGS.find(
+    ? allBriefings.find(
         (b) =>
           b.track ===
             (profile.activeRun!.track === 'mixed' ? 'az-104' : profile.activeRun!.track) &&
@@ -514,12 +535,18 @@ export const App: React.FC = () => {
           }}
           className="flex items-center gap-2 text-left"
         >
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-sky-400 to-indigo-600 font-black text-slate-950 shadow">
-            A
+          <div
+            className={`flex h-8 w-8 items-center justify-center rounded-xl font-black text-slate-950 shadow ${
+              isHubAiPm
+                ? 'bg-gradient-to-br from-purple-400 to-sky-500'
+                : 'bg-gradient-to-br from-sky-400 to-indigo-600'
+            }`}
+          >
+            {isHubAiPm ? 'AI' : 'A'}
           </div>
           <div>
             <div className="text-sm font-black tracking-tight text-white leading-none">
-              Spire of Azure
+              {isHubAiPm ? 'Spire of AI Product' : 'Spire of Azure'}
             </div>
             <div className="text-[10px] font-semibold text-sky-400">
               {ALL_EXAM_QUESTIONS.length} Offline Exam Cards
@@ -604,9 +631,10 @@ export const App: React.FC = () => {
         )
       ) : view === 'codex' ? (
         <BriefingsAndCodexModal
-          rosettaRows={ROSETTA_SERVICES}
-          cheatSheets={CHEAT_SHEET_TABLES}
-          briefings={ACT_INTEL_BRIEFINGS}
+          rosettaRows={allRosettaRows}
+          cheatSheets={allCheatSheets}
+          briefings={allBriefings}
+          initialGroup={isHubAiPm ? 'aipm' : 'cloud'}
           onClose={() => setView('hub')}
         />
       ) : view === 'drill' ? (
@@ -719,7 +747,8 @@ export const App: React.FC = () => {
                   ● Climb In Progress
                 </div>
                 <div className="text-base font-black text-white">
-                  Resume {profile.activeRun.track.toUpperCase()} • Act {profile.activeRun.act}/
+                  Resume {profile.activeRun.track === 'aipc' ? 'AIPC™ AI PM' : profile.activeRun.track.toUpperCase()} •{' '}
+                  {profile.activeRun.track === 'aipc' ? 'Mod' : 'Act'} {profile.activeRun.act}/
                   {profile.activeRun.totalActs}
                 </div>
                 <div className="text-xs text-slate-300">
@@ -742,12 +771,13 @@ export const App: React.FC = () => {
               </span>
             </div>
 
-            <div className="mb-3 grid grid-cols-3 gap-1.5 rounded-xl bg-slate-900 p-1">
+            <div className="mb-3 grid grid-cols-4 gap-1 rounded-xl bg-slate-900 p-1">
               {(
                 [
-                  { id: 'az-900', label: 'AZ-900', sub: '3 Acts • Xmas' },
-                  { id: 'az-104', label: 'AZ-104', sub: '5 Acts • Admin' },
-                  { id: 'mixed', label: 'Mixed', sub: 'Adaptive All' }
+                  { id: 'az-900', label: 'AZ-900', sub: '3 Acts' },
+                  { id: 'az-104', label: 'AZ-104', sub: '5 Acts' },
+                  { id: 'aipc', label: 'AI PM', sub: '6 Mod' },
+                  { id: 'mixed', label: 'Cloud Mix', sub: 'AZ All' }
                 ] as const
               ).map((t) => (
                 <button
@@ -762,13 +792,15 @@ export const App: React.FC = () => {
                   }}
                   className={`rounded-lg py-2 text-center transition ${
                     runModeTrack === t.id
-                      ? 'bg-sky-500 text-slate-950 shadow'
+                      ? t.id === 'aipc'
+                        ? 'bg-purple-400 text-slate-950 shadow'
+                        : 'bg-sky-500 text-slate-950 shadow'
                       : 'text-slate-300'
                   }`}
                 >
-                  <div className="text-xs font-black">{t.label}</div>
+                  <div className="text-[11px] font-black">{t.label}</div>
                   <div
-                    className={`text-[10px] ${
+                    className={`text-[9.5px] ${
                       runModeTrack === t.id ? 'font-semibold text-slate-900' : 'text-slate-500'
                     }`}
                   >
@@ -801,18 +833,18 @@ export const App: React.FC = () => {
             </div>
           </div>
 
-          {/* ARCHITECT CLASS & SLA ASCENSION LAUNCHER */}
+          {/* LOADOUT & LAUNCHER */}
           <div className="rounded-2xl border border-slate-800 bg-slate-950 p-3.5">
             <div className="mb-2 flex items-center justify-between">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                Architect Loadout
+                {isHubAiPm ? 'AI PM Loadout' : 'Architect Loadout'}
               </span>
               <button
                 type="button"
                 onClick={() => setView('ccoe')}
                 className="text-xs font-bold text-purple-400 underline"
               >
-                Upgrades & Classes →
+                {isHubAiPm ? 'Perks & Archetypes →' : 'Upgrades & Classes →'}
               </button>
             </div>
 
@@ -821,6 +853,9 @@ export const App: React.FC = () => {
               {ARCHITECT_CLASSES.map((cls) => {
                 const unlocked = profile.unlockedClasses.includes(cls.id);
                 const selected = profile.selectedClass === cls.id;
+                const shortLabel = isHubAiPm
+                  ? AIPC_CLASS_OVERLAYS[cls.id].shortLabel
+                  : cls.name.split(' ')[1];
                 return (
                   <button
                     key={cls.id}
@@ -843,7 +878,7 @@ export const App: React.FC = () => {
                   >
                     <div className="flex items-center justify-between">
                       <span className={`text-[11px] font-black ${cls.accentColor}`}>
-                        {cls.name.split(' ')[1]}
+                        {shortLabel}
                       </span>
                       {!unlocked && <Lock className="h-3 w-3 text-slate-500" />}
                     </div>
@@ -853,14 +888,19 @@ export const App: React.FC = () => {
               })}
             </div>
 
-            {/* SLA Ascension Selector */}
+            {/* Ascension Selector */}
             <div className="mb-3 flex items-center justify-between rounded-xl border border-slate-800 bg-slate-900/70 px-3 py-2 text-xs">
               <div>
                 <span className="font-bold text-amber-300">
-                  {SLA_ASCENSIONS[profile.selectedAscension]?.sla}
+                  {isHubAiPm
+                    ? AIPC_ASCENSIONS[profile.selectedAscension]?.label
+                    : SLA_ASCENSIONS[profile.selectedAscension]?.sla}
                 </span>
                 <span className="ml-1.5 text-[11px] text-slate-400">
-                  • {SLA_ASCENSIONS[profile.selectedAscension]?.subtitle}
+                  •{' '}
+                  {isHubAiPm
+                    ? AIPC_ASCENSIONS[profile.selectedAscension]?.subtitle
+                    : SLA_ASCENSIONS[profile.selectedAscension]?.subtitle}
                 </span>
               </div>
               <div className="flex items-center gap-1">
@@ -892,13 +932,17 @@ export const App: React.FC = () => {
             <button
               type="button"
               onClick={handleStartNewRun}
-              className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-sky-400 to-indigo-500 py-3.5 text-sm font-black text-slate-950 shadow-lg shadow-sky-500/25 transition active:scale-98"
+              className={`flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 text-sm font-black text-slate-950 shadow-lg transition active:scale-98 ${
+                isHubAiPm
+                  ? 'bg-gradient-to-r from-purple-400 to-sky-400 shadow-purple-500/25'
+                  : 'bg-gradient-to-r from-sky-400 to-indigo-500 shadow-sky-500/25'
+              }`}
             >
               <Play className="h-4 w-4 fill-current" />
               <span>
                 {profile.activeRun
-                  ? `Start Fresh ${runModeTrack.toUpperCase()} Climb`
-                  : `Launch ${runModeTrack.toUpperCase()} Spire Climb`}
+                  ? `Start Fresh ${runModeTrack === 'aipc' ? 'AIPC™ AI PM' : runModeTrack.toUpperCase()} Climb`
+                  : `Launch ${runModeTrack === 'aipc' ? 'AIPC™ AI PM' : runModeTrack.toUpperCase()} Spire Climb`}
               </span>
             </button>
           </div>
@@ -914,9 +958,13 @@ export const App: React.FC = () => {
               className="rounded-2xl border border-slate-800 bg-slate-950 p-3.5 text-left transition hover:border-sky-500/50 active:scale-98"
             >
               <BookOpen className="mb-1.5 h-5 w-5 text-sky-400" />
-              <div className="text-xs font-extrabold text-white">AWS ↔ Azure Codex</div>
+              <div className="text-xs font-extrabold text-white">
+                {isHubAiPm ? 'AI PM Field Codex' : 'AWS ↔ Azure Codex'}
+              </div>
               <div className="text-[11px] text-slate-400">
-                Rosetta Stone, SKU Tables & Act Guides
+                {isHubAiPm
+                  ? 'Classic→AI PM, Matrices & Module Guides'
+                  : 'Rosetta Stone, SKU Tables & Act Guides'}
               </div>
             </button>
 
@@ -953,7 +1001,9 @@ export const App: React.FC = () => {
               <ClipboardCheck className="mb-1.5 h-5 w-5 text-emerald-400" />
               <div className="text-xs font-extrabold text-white">700/1000 Mock Exam</div>
               <div className="text-[11px] text-slate-400">
-                Timed AZ-900 (40q) & AZ-104 (50q)
+                {isHubAiPm
+                  ? 'Timed AIPC™ (45q) & Cloud Exams'
+                  : 'Timed AZ-900, AZ-104 & AIPC™'}
               </div>
             </button>
 
@@ -971,9 +1021,13 @@ export const App: React.FC = () => {
                   {profile.migrationCredits} Cr
                 </span>
               </div>
-              <div className="text-xs font-extrabold text-white">Architect Perks</div>
+              <div className="text-xs font-extrabold text-white">
+                {isHubAiPm ? 'AI PM Perks' : 'Architect Perks'}
+              </div>
               <div className="text-[11px] text-slate-400">
-                Unlock Sentinel, Striker & SLA buffs
+                {isHubAiPm
+                  ? 'Unlock Guardian, Builder & Sprint buffs'
+                  : 'Unlock Sentinel, Striker & SLA buffs'}
               </div>
             </button>
           </div>

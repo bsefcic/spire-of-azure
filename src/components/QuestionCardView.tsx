@@ -153,7 +153,9 @@ export const QuestionCardView: React.FC<QuestionCardViewProps> = ({
               <Zap className="h-3.5 w-3.5" />
               {inFastWindow ? 'FAST CHARGE ACTIVE (+4 ⚡ Energy)' : 'STANDARD CHARGE (+3 ⚡ Energy)'}
             </span>
-            <span className="text-slate-500 uppercase tracking-wider">{question.track}</span>
+            <span className="text-slate-500 uppercase tracking-wider">
+              {question.track === 'aipc' ? 'AI PM' : question.track}
+            </span>
           </div>
           <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-900">
             <div
@@ -193,10 +195,10 @@ export const QuestionCardView: React.FC<QuestionCardViewProps> = ({
                     ? 'border-amber-500/40 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20'
                     : 'border-slate-800 bg-slate-900/50 text-slate-600'
               }`}
-              title="AWS SAA Bridge Hint"
+              title={question.track === 'aipc' ? 'Product Leader Hint' : 'AWS SAA Bridge Hint'}
             >
               <HelpCircle className="h-3.5 w-3.5" />
-              <span>AWS Hint ({hintCharges})</span>
+              <span>{question.track === 'aipc' ? 'PM Hint' : 'AWS Hint'} ({hintCharges})</span>
             </button>
           )}
           {onToggleFlag && (
@@ -219,10 +221,12 @@ export const QuestionCardView: React.FC<QuestionCardViewProps> = ({
         </div>
       </div>
 
-      {/* Optional AWS Hint Banner */}
+      {/* Optional Hint Banner */}
       {usedHint && (
         <div className="mb-2.5 rounded-xl border border-amber-500/35 bg-amber-950/35 px-3 py-2 text-xs text-amber-200">
-          <span className="font-bold text-amber-400">AWS SAA Bridge Nudge: </span>
+          <span className="font-bold text-amber-400">
+            {question.track === 'aipc' ? 'Product Leader Nudge: ' : 'AWS SAA Bridge Nudge: '}
+          </span>
           {question.awsBridgeHint}
         </div>
       )}

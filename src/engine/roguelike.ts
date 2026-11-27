@@ -137,7 +137,7 @@ export function createNewRun(
   const maxHp = cls.maxHp + bonusHp;
   const gold = 80 + profile.metaUpgrades.startingCache * 35;
   const baseHints = 1 + profile.metaUpgrades.awsTranslator + (cls.starterRelicId === 'relic-aws-badge' ? 1 : 0);
-  const totalActs: 3 | 5 = track === 'az-900' ? 3 : 5;
+  const totalActs: 3 | 5 | 6 = track === 'az-900' ? 3 : track === 'aipc' ? 6 : 5;
 
   const deck = cls.starterCardIds.map((cid) => cloneCardInstance(cid, false));
 
@@ -171,7 +171,10 @@ export function createNewRun(
 }
 
 export function spawnEnemyForNode(run: ActiveRun, tier: 'normal' | 'elite' | 'boss'): ActiveEnemy {
-  let candidates = ENEMY_TEMPLATES.filter((e) => e.tier === tier);
+  let candidates = ENEMY_TEMPLATES.filter((e) => {
+    if (e.tier !== tier) return false;
+    return run.track === 'aipc' ? e.track === 'aipc' : e.track !== 'aipc';
+  });
   if (tier === 'boss') {
     const actBoss = candidates.find((b) => b.act === run.act);
     if (actBoss) candidates = [actBoss];
@@ -766,7 +769,10 @@ export function generateMarketplaceShop(run: ActiveRun): ActiveRun {
 }
 
 export function triggerCloudIncident(run: ActiveRun): ActiveRun {
-  const incident = CLOUD_INCIDENTS[Math.floor(Math.random() * CLOUD_INCIDENTS.length)];
+  const pool = CLOUD_INCIDENTS.filter((inc) =>
+    run.track === 'aipc' ? inc.trackGroup === 'aipm' : inc.trackGroup !== 'aipm'
+  );
+  const incident = pool[Math.floor(Math.random() * pool.length)] || CLOUD_INCIDENTS[0];
   return {
     ...run,
     activeIncident: incident

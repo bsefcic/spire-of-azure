@@ -17,7 +17,8 @@ export function createDefaultProfile(): PlayerSaveProfile {
     unlockedClasses: ['vanguard'],
     highestAscensionUnlocked: {
       'az-900': 0,
-      'az-104': 0
+      'az-104': 0,
+      'aipc': 0
     },
     migrationCredits: 0,
     totalPlayTimeSec: 0,

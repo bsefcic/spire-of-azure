@@ -7,6 +7,7 @@ interface BriefingsAndCodexModalProps {
   rosettaRows: RosettaServiceRow[];
   cheatSheets: CheatSheetTable[];
   briefings: ActIntelBriefing[];
+  initialGroup?: 'cloud' | 'aipm';
   onClose: () => void;
 }
 
@@ -14,21 +15,41 @@ export const BriefingsAndCodexModal: React.FC<BriefingsAndCodexModalProps> = ({
   rosettaRows,
   cheatSheets,
   briefings,
+  initialGroup = 'cloud',
   onClose
 }) => {
+  const [domainGroup, setDomainGroup] = useState<'cloud' | 'aipm'>(initialGroup);
   const [tab, setTab] = useState<'rosetta' | 'matrices' | 'briefings'>('rosetta');
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState<string>('All');
-  const [selectedBriefingId, setSelectedBriefingId] = useState<string>(briefings[0]?.id || '');
+
+  const groupRows = useMemo(
+    () => rosettaRows.filter((r) => (domainGroup === 'aipm' ? r.trackGroup === 'aipm' : r.trackGroup !== 'aipm')),
+    [rosettaRows, domainGroup]
+  );
+
+  const groupSheets = useMemo(
+    () => cheatSheets.filter((s) => (domainGroup === 'aipm' ? s.track === 'AIPC' : s.track !== 'AIPC')),
+    [cheatSheets, domainGroup]
+  );
+
+  const groupBriefings = useMemo(
+    () => briefings.filter((b) => (domainGroup === 'aipm' ? b.track === 'aipc' : b.track !== 'aipc')),
+    [briefings, domainGroup]
+  );
+
+  const [selectedBriefingId, setSelectedBriefingId] = useState<string>(
+    () => groupBriefings[0]?.id || briefings[0]?.id || ''
+  );
 
   const categories = useMemo(() => {
-    const cats = Array.from(new Set(rosettaRows.map((r) => r.category)));
+    const cats = Array.from(new Set(groupRows.map((r) => r.category)));
     return ['All', ...cats];
-  }, [rosettaRows]);
+  }, [groupRows]);
 
   const filteredRows = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return rosettaRows.filter((row) => {
+    return groupRows.filter((row) => {
       if (category !== 'All' && row.category !== category) return false;
       if (!q) return true;
       return (
@@ -38,15 +59,26 @@ export const BriefingsAndCodexModal: React.FC<BriefingsAndCodexModalProps> = ({
         row.category.toLowerCase().includes(q)
       );
     });
-  }, [rosettaRows, category, search]);
+  }, [groupRows, category, search]);
 
-  const activeBriefing = briefings.find((b) => b.id === selectedBriefingId) || briefings[0];
+  const activeBriefing = groupBriefings.find((b) => b.id === selectedBriefingId) || groupBriefings[0];
+
+  const switchGroup = (next: 'cloud' | 'aipm') => {
+    sfx.tap();
+    setDomainGroup(next);
+    setCategory('All');
+    setSearch('');
+    const first = briefings.find((b) => (next === 'aipm' ? b.track === 'aipc' : b.track !== 'aipc'));
+    if (first) setSelectedBriefingId(first.id);
+  };
 
   return (
     <div className="min-h-[calc(100dvh-3.5rem)] bg-black px-3.5 py-3 safe-bottom">
       <div className="mb-3 flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-black text-white">AWS ↔ Azure Rosetta Codex</h2>
+          <h2 className="text-lg font-black text-white">
+            {domainGroup === 'aipm' ? 'Classic PM ↔ AI PM Codex' : 'AWS ↔ Azure Rosetta Codex'}
+          </h2>
           <p className="text-xs text-slate-400">100% Offline Reference, Matrices & Field Guides</p>
         </div>
         <button
@@ -58,6 +90,28 @@ export const BriefingsAndCodexModal: React.FC<BriefingsAndCodexModalProps> = ({
           className="rounded-xl border border-slate-800 bg-slate-900 p-2 text-slate-300"
         >
           <X className="h-4 w-4" />
+        </button>
+      </div>
+
+      {/* Domain Switcher: AI PM vs Cloud */}
+      <div className="mb-2.5 grid grid-cols-2 gap-1.5 rounded-xl border border-slate-800 bg-slate-950 p-1">
+        <button
+          type="button"
+          onClick={() => switchGroup('aipm')}
+          className={`rounded-lg py-1.5 text-xs font-extrabold transition ${
+            domainGroup === 'aipm' ? 'bg-purple-500 text-slate-950' : 'text-slate-400'
+          }`}
+        >
+          AI Product Mgmt (AIPC)
+        </button>
+        <button
+          type="button"
+          onClick={() => switchGroup('cloud')}
+          className={`rounded-lg py-1.5 text-xs font-extrabold transition ${
+            domainGroup === 'cloud' ? 'bg-sky-500 text-slate-950' : 'text-slate-400'
+          }`}
+        >
+          Azure Cloud (AZ-900/104)
         </button>
       </div>
 
@@ -74,7 +128,7 @@ export const BriefingsAndCodexModal: React.FC<BriefingsAndCodexModalProps> = ({
           }`}
         >
           <Layers className="h-3.5 w-3.5" />
-          <span>AWS Map</span>
+          <span>{domainGroup === 'aipm' ? 'PM Shift Map' : 'AWS Map'}</span>
         </button>
         <button
           type="button"
@@ -100,11 +154,11 @@ export const BriefingsAndCodexModal: React.FC<BriefingsAndCodexModalProps> = ({
           }`}
         >
           <BookOpen className="h-3.5 w-3.5" />
-          <span>Act Guides</span>
+          <span>{domainGroup === 'aipm' ? 'Module Guides' : 'Act Guides'}</span>
         </button>
       </div>
 
-      {/* TAB 1: SEARCHABLE AWS <-> AZURE ROSETTA STONE */}
+      {/* TAB 1: SEARCHABLE ROSETTA STONE */}
       {tab === 'rosetta' && (
         <div className="space-y-3">
           <div className="relative">
@@ -113,7 +167,11 @@ export const BriefingsAndCodexModal: React.FC<BriefingsAndCodexModalProps> = ({
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search ECS, DynamoDB, S3, VPC, Entra, Bicep..."
+              placeholder={
+                domainGroup === 'aipm'
+                  ? 'Search RAG, Evals, PRD, HITL, Fine-Tune, Agents...'
+                  : 'Search ECS, DynamoDB, S3, VPC, Entra, Bicep...'
+              }
               className="w-full rounded-xl border border-slate-800 bg-slate-950 py-2 pr-3 pl-9 text-xs text-white placeholder-slate-500 focus:border-sky-500 focus:outline-none"
             />
           </div>
@@ -149,11 +207,15 @@ export const BriefingsAndCodexModal: React.FC<BriefingsAndCodexModalProps> = ({
                 </div>
                 <div className="mb-1.5 grid grid-cols-2 gap-2 rounded-xl border border-slate-800/80 bg-slate-900/70 p-2 text-xs">
                   <div>
-                    <div className="text-[10px] font-bold text-amber-400">AWS SAA</div>
+                    <div className="text-[10px] font-bold text-amber-400">
+                      {domainGroup === 'aipm' ? 'Classic Software PM' : 'AWS SAA'}
+                    </div>
                     <div className="font-bold text-amber-100">{row.awsService}</div>
                   </div>
                   <div>
-                    <div className="text-[10px] font-bold text-sky-400">Microsoft Azure</div>
+                    <div className="text-[10px] font-bold text-sky-400">
+                      {domainGroup === 'aipm' ? 'AI Product Manager' : 'Microsoft Azure'}
+                    </div>
                     <div className="font-extrabold text-sky-200">{row.azureService}</div>
                   </div>
                 </div>
@@ -170,7 +232,7 @@ export const BriefingsAndCodexModal: React.FC<BriefingsAndCodexModalProps> = ({
       {/* TAB 2: EXAM CHEAT-SHEET MATRICES */}
       {tab === 'matrices' && (
         <div className="space-y-4 pb-6">
-          {cheatSheets.map((sheet) => (
+          {groupSheets.map((sheet) => (
             <div
               key={sheet.id}
               className="rounded-2xl border border-slate-800 bg-slate-950 p-3.5"
@@ -222,11 +284,11 @@ export const BriefingsAndCodexModal: React.FC<BriefingsAndCodexModalProps> = ({
         </div>
       )}
 
-      {/* TAB 3: ALL 8 ACT INTEL BRIEFINGS */}
+      {/* TAB 3: INTEL BRIEFINGS */}
       {tab === 'briefings' && (
         <div className="space-y-3 pb-6">
           <div className="no-scrollbar flex gap-1.5 overflow-x-auto pb-1">
-            {briefings.map((b) => (
+            {groupBriefings.map((b) => (
               <button
                 key={b.id}
                 type="button"
@@ -237,7 +299,7 @@ export const BriefingsAndCodexModal: React.FC<BriefingsAndCodexModalProps> = ({
                     : 'border-slate-800 bg-slate-950 text-slate-400'
                 }`}
               >
-                {b.track.toUpperCase()} • Act {b.act}
+                {b.track === 'aipc' ? `Mod ${b.act}` : `${b.track.toUpperCase()} • Act ${b.act}`}
               </button>
             ))}
           </div>
@@ -257,7 +319,8 @@ export const BriefingsAndCodexModal: React.FC<BriefingsAndCodexModalProps> = ({
                   <div className="mb-1 flex flex-wrap items-center justify-between gap-1">
                     <span className="text-sm font-extrabold text-sky-300">{c.title}</span>
                     <span className="rounded bg-amber-500/15 px-2 py-0.5 text-[10px] font-bold text-amber-300">
-                      AWS: {c.awsEquivalent}
+                      {domainGroup === 'aipm' ? 'Classic PM: ' : 'AWS: '}
+                      {c.awsEquivalent}
                     </span>
                   </div>
                   <p className="mb-2 text-xs text-slate-200">{c.azureConcept}</p>

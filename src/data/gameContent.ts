@@ -819,6 +819,215 @@ export const ENEMY_TEMPLATES: EnemyTemplate[] = [
       { type: 'multi-attack', value: 9, hits: 3, label: 'Cascading Alert Storm x3' },
       { type: 'attack-defend', value: 26, secondaryValue: 18, label: 'Total Outage Pulse!' }
     ]
+  },
+
+  // === AIPC™ AI PRODUCT MANAGEMENT ENEMIES, ELITES & CASE STUDY BOSSES ===
+  {
+    id: 'aipc-en-hallucination',
+    name: 'Confident Hallucination',
+    subtitle: 'Plausible-Sounding Fabricated Citation',
+    tier: 'normal',
+    track: 'aipc',
+    maxHp: 42,
+    intents: [
+      { type: 'attack', value: 8, label: 'Fabricated Fact' },
+      { type: 'attack-defend', value: 6, secondaryValue: 6, label: 'Fluent Bluff Shield' },
+      { type: 'attack', value: 11, label: 'Executive Trust Loss' }
+    ]
+  },
+  {
+    id: 'aipc-en-solutionism',
+    name: 'Shiny-AI Solutionism Bot',
+    subtitle: 'GenAI Wrapper Looking for a Problem',
+    tier: 'normal',
+    track: 'aipc',
+    maxHp: 46,
+    intents: [
+      { type: 'multi-attack', value: 4, hits: 2, label: 'Feature Bloat x2' },
+      { type: 'buff', value: 2, label: 'Hype Cycle (+2 Str)' },
+      { type: 'attack', value: 10, label: 'Zero-Retention Launch' }
+    ]
+  },
+  {
+    id: 'aipc-en-injection',
+    name: 'Indirect Prompt Injector',
+    subtitle: 'Malicious Instructions Hidden in RAG Doc',
+    tier: 'normal',
+    track: 'aipc',
+    maxHp: 48,
+    intents: [
+      { type: 'debuff', value: 2, label: 'System Prompt Leak (Weak)' },
+      { type: 'attack', value: 10, label: 'Data Exfiltration' },
+      { type: 'attack-defend', value: 8, secondaryValue: 7, label: 'Override Guardrail' }
+    ]
+  },
+  {
+    id: 'aipc-en-context-bloat',
+    name: 'Context Window Bloat',
+    subtitle: '128K Token Dump & Lost-in-the-Middle',
+    tier: 'normal',
+    track: 'aipc',
+    maxHp: 54,
+    intents: [
+      { type: 'attack', value: 9, label: 'COGS Margin Burn' },
+      { type: 'defend', value: 10, label: 'Buried Key Fact' },
+      { type: 'attack', value: 13, label: 'Quadratic Latency Spike' }
+    ]
+  },
+  {
+    id: 'aipc-en-latency-phantom',
+    name: 'TTFT Latency Phantom',
+    subtitle: '12-Second Blocking Spinner UX',
+    tier: 'normal',
+    track: 'aipc',
+    maxHp: 58,
+    intents: [
+      { type: 'multi-attack', value: 4, hits: 3, label: 'User Drop-Off x3' },
+      { type: 'attack-defend', value: 9, secondaryValue: 6, label: 'Timeout Lock' }
+    ]
+  },
+  {
+    id: 'aipc-en-model-drift',
+    name: 'Silent Model Drift',
+    subtitle: 'Unannounced Provider Update & Stale Data',
+    tier: 'normal',
+    track: 'aipc',
+    maxHp: 62,
+    intents: [
+      { type: 'buff', value: 3, label: 'Accuracy Decay (+3 Str)' },
+      { type: 'attack', value: 12, label: 'Broken JSON Schema' },
+      { type: 'attack', value: 14, label: 'Support Ticket Flood' }
+    ]
+  },
+  {
+    id: 'aipc-el-token-loop',
+    name: 'Runaway Agent Loop',
+    subtitle: 'ELITE • Unbounded Recursive Tool Calls',
+    tier: 'elite',
+    track: 'aipc',
+    maxHp: 84,
+    intents: [
+      { type: 'multi-attack', value: 5, hits: 3, label: 'Infinite Retry x3' },
+      { type: 'buff', value: 3, label: 'Token Burn Amplify (+3 Str)' },
+      { type: 'attack-defend', value: 14, secondaryValue: 10, label: 'Duplicate API Side-Effect' }
+    ]
+  },
+  {
+    id: 'aipc-el-pii-leak',
+    name: 'PII Training Leak',
+    subtitle: 'ELITE • Customer Data Retained by Third-Party Model',
+    tier: 'elite',
+    track: 'aipc',
+    maxHp: 90,
+    intents: [
+      { type: 'attack', value: 15, label: 'GDPR Breach Fine' },
+      { type: 'debuff', value: 2, label: 'Compliance Freeze (Weak)' },
+      { type: 'multi-attack', value: 8, hits: 2, label: 'Cross-Tenant Recall x2' }
+    ]
+  },
+  {
+    id: 'aipc-el-vibes-launch',
+    name: 'The "Vibes-Only" Launch',
+    subtitle: 'ELITE • Shipped Without Golden Evals or Guardrails',
+    tier: 'elite',
+    track: 'aipc',
+    maxHp: 96,
+    intents: [
+      { type: 'charge-boss', value: 12, label: 'Anecdotal Demo Passing...' },
+      { type: 'attack', value: 20, label: 'PR Disaster on Launch Day!' },
+      { type: 'attack-defend', value: 12, secondaryValue: 12, label: 'Blind Spot' }
+    ]
+  },
+  {
+    id: 'aipc-boss-1',
+    name: 'The Deterministic Exec',
+    subtitle: 'MODULE 1 BOSS • AI & GenAI Foundations',
+    tier: 'boss',
+    track: 'aipc',
+    act: 1,
+    maxHp: 115,
+    bossCaseStudyIntro: 'CASE STUDY: Leadership expects your new LLM assistant to give 100% identical deterministic answers on every click—explain tokens, temperature, hallucinations, and probabilistic product lifecycles.',
+    intents: [
+      { type: 'attack-defend', value: 10, secondaryValue: 10, label: 'Demand 100% Determinism' },
+      { type: 'buff', value: 3, label: 'Scope Creep (+3 Str)' },
+      { type: 'attack', value: 17, label: 'Cut Prototype Budget' }
+    ]
+  },
+  {
+    id: 'aipc-boss-2',
+    name: 'Gross Margin Compression',
+    subtitle: 'MODULE 2 BOSS • AI Strategy, Moats & Unit Economics',
+    tier: 'boss',
+    track: 'aipc',
+    act: 2,
+    maxHp: 132,
+    bossCaseStudyIntro: 'CASE STUDY: Your flat \$10/seat AI add-on is losing money on power users burning frontier reasoning tokens, while competitors clone your thin wrapper overnight.',
+    intents: [
+      { type: 'multi-attack', value: 6, hits: 3, label: 'Inference COGS Burn x3' },
+      { type: 'defend', value: 15, label: 'Zero Data Moat' },
+      { type: 'attack', value: 20, label: 'Negative Gross Margin!' }
+    ]
+  },
+  {
+    id: 'aipc-boss-3',
+    name: 'Automation Bias Trap',
+    subtitle: 'MODULE 3 BOSS • AI-Native UX & Human-Centered Trust',
+    tier: 'boss',
+    track: 'aipc',
+    act: 3,
+    maxHp: 148,
+    bossCaseStudyIntro: 'CASE STUDY: Users blindly rubber-stamp an empty-box chatbot’s wrong legal summaries, wait 9 seconds with no feedback, and abandon the feature after one bad hallucination.',
+    intents: [
+      { type: 'debuff', value: 2, label: 'Blank-Box Abandonment (Weak)' },
+      { type: 'attack-defend', value: 14, secondaryValue: 12, label: 'Unverified Rubber-Stamp' },
+      { type: 'attack', value: 21, label: 'Zero-Trust Churn Wave!' }
+    ]
+  },
+  {
+    id: 'aipc-boss-4',
+    name: 'The Stale Fine-Tune',
+    subtitle: 'MODULE 4 BOSS • GenAI PRDs, Prompting & RAG vs Fine-Tuning',
+    tier: 'boss',
+    track: 'aipc',
+    act: 4,
+    maxHp: 165,
+    bossCaseStudyIntro: 'CASE STUDY: An engineering team spent 6 weeks fine-tuning a model on Q1 policy PDFs—only for prices to change daily—while your classic PRD lacks eval acceptance criteria.',
+    intents: [
+      { type: 'multi-attack', value: 7, hits: 3, label: 'Outdated Knowledge x3' },
+      { type: 'attack-defend', value: 15, secondaryValue: 14, label: 'Ambiguous PRD Spec' },
+      { type: 'attack', value: 23, label: 'Wrong-Tool Rework!' }
+    ]
+  },
+  {
+    id: 'aipc-boss-5',
+    name: 'Compounding Error Cascade',
+    subtitle: 'MODULE 5 BOSS • Low-Code Prototyping & AI Agents',
+    tier: 'boss',
+    track: 'aipc',
+    act: 5,
+    maxHp: 182,
+    bossCaseStudyIntro: 'CASE STUDY: Your autonomous 6-step refund agent has 90% per-step accuracy (53% end-to-end!), invokes destructive tools without confirmation, and burns \$40 per stuck loop.',
+    intents: [
+      { type: 'multi-attack', value: 8, hits: 3, label: 'Agent Loop Cascade x3' },
+      { type: 'buff', value: 4, label: 'Tool Hallucination (+4 Str)' },
+      { type: 'attack', value: 24, label: 'Unconfirmed Refund Blast!' }
+    ]
+  },
+  {
+    id: 'aipc-boss-6',
+    name: 'EU AI Act & Launch Gate',
+    subtitle: 'MODULE 6 FINAL BOSS • Evals, Safety, Ethics & GTM',
+    tier: 'boss',
+    track: 'aipc',
+    act: 6,
+    maxHp: 205,
+    bossCaseStudyIntro: 'FINAL CASE STUDY: Before GA launch in Europe, Legal, Security, and Sales demand calibrated RAG Triad evals, red-teaming against indirect prompt injection, bias audits, and shadow-mode telemetry.',
+    intents: [
+      { type: 'attack', value: 19, label: 'Unverified Judge Bias' },
+      { type: 'buff', value: 4, label: 'Regulatory Audit (+4 Str)' },
+      { type: 'multi-attack', value: 9, hits: 3, label: 'Red-Team Jailbreak x3' },
+      { type: 'attack-defend', value: 25, secondaryValue: 16, label: 'GA Launch Blocker!' }
+    ]
   }
 ];
 
@@ -929,6 +1138,124 @@ export const CLOUD_INCIDENTS: CloudIncident[] = [
         label: 'Create direct mesh VNet Peering between VNet-A and VNet-B',
         azureAction: 'Low-Latency Direct Link',
         outcomeText: 'Instant full-bandwidth link with zero NVA hop! Gain +40 Gold and +1 AWS Hint Charge.',
+        goldDelta: 40,
+        hintDelta: 1
+      }
+    ]
+  },
+
+  // === AIPC™ AI PRODUCT ESCALATION INCIDENTS ===
+  {
+    id: 'aipc-inc-wrapper',
+    trackGroup: 'aipm',
+    title: 'Board Demands "Add AI Chat" by Friday',
+    awsContext: 'Leadership saw a competitor’s chatbot demo and wants a generic floating chat widget slapped onto your B2B analytics app.',
+    description: 'User research shows customers actually hate writing prompts from scratch and just want instant anomaly explanations inside their existing dashboard.',
+    choices: [
+      {
+        label: 'Pitch an inline "Explain Anomaly" co-pilot button using proprietary workspace context',
+        azureAction: 'High-ROI AI-Native UX',
+        outcomeText: 'Engineering prototypes it in 2 days with 3x higher adoption than a blank chatbox! Upgrade a random card & gain +35 Gold.',
+        goldDelta: 35,
+        upgradeRandomCard: true
+      },
+      {
+        label: 'Ship the generic floating chatbot fast to check the leadership box',
+        azureAction: 'Fast Optics (-8 HP retention hit)',
+        outcomeText: 'Demo looks shiny (+65 Gold), but 30-day feature retention drops to 4% (-8 HP).',
+        goldDelta: 65,
+        hpDelta: -8
+      }
+    ]
+  },
+  {
+    id: 'aipc-inc-rag-vs-ft',
+    trackGroup: 'aipm',
+    title: 'Engineering Wants to Fine-Tune for Fresh Docs',
+    awsContext: 'Your legal tech startup updates compliance clauses every week. The ML lead proposes spending \$25k fine-tuning a model on today’s PDFs.',
+    description: 'Users also demand clickable page citations for every claim. Which architecture do you spec in the GenAI PRD?',
+    choices: [
+      {
+        label: 'Specify RAG with hybrid search, reranking, and inline source citations',
+        azureAction: 'Right Tool for Dynamic Knowledge',
+        outcomeText: 'Instant weekly updates, verifiable citations, and zero retraining cost! Heal +14 HP and gain +1 PM Hint Charge.',
+        hpDelta: 14,
+        hintDelta: 1
+      },
+      {
+        label: 'Approve SFT/LoRA fine-tuning AND build a retrieval pipeline later (-10 HP budget)',
+        azureAction: 'Over-Engineered Sprint',
+        outcomeText: 'Expensive sprint (-10 HP), though the model learns crisp legal tone and unlocks a rare Relic!',
+        hpDelta: -10,
+        gainRelic: true
+      }
+    ]
+  },
+  {
+    id: 'aipc-inc-margin-shock',
+    trackGroup: 'aipm',
+    title: 'Power Users Are Crushing Your Gross Margin',
+    awsContext: 'Your \$15/mo Pro plan includes unlimited frontier reasoning queries. Top 5% of users cost \$85/user/month in API tokens.',
+    description: 'Finance threatens to kill the AI feature unless unit economics stabilize this quarter.',
+    choices: [
+      {
+        label: 'Implement Model Routing (small model for easy tasks) + Prompt Caching + Soft Usage Tiers',
+        azureAction: 'Smart Inference Economics (-25 Gold)',
+        outcomeText: 'COGS drops 68% with zero perceived quality loss! Upgrade a random card & gain +6 Max HP.',
+        goldDelta: -25,
+        maxHpDelta: 6,
+        upgradeRandomCard: true
+      },
+      {
+        label: 'Throttle response length across all users immediately',
+        azureAction: 'Quick Margin Patch (+45 Gold)',
+        outcomeText: 'Saved immediate inference spend (+45 Gold) and earned +1 PM Hint Charge.',
+        goldDelta: 45,
+        hintDelta: 1
+      }
+    ]
+  },
+  {
+    id: 'aipc-inc-agent-guardrail',
+    trackGroup: 'aipm',
+    title: 'Autonomous Agent Issued Unapproved Refunds',
+    awsContext: 'During beta, an indirect prompt injection inside a customer support email tricked your agent into calling issue_refund(\$500).',
+    description: 'You need to ship safely before Monday’s enterprise pilot.',
+    choices: [
+      {
+        label: 'Require Human-in-the-Loop confirmation for destructive tools + max-step circuit breakers',
+        azureAction: 'Calibrated Agent Autonomy',
+        outcomeText: 'Zero unauthorized payouts and clean audit logs! Gain +50 Gold and heal +10 HP.',
+        goldDelta: 50,
+        hpDelta: 10
+      },
+      {
+        label: 'Disable all agent tool calling and revert to static FAQ summaries',
+        azureAction: 'Conservative Rollback (-6 HP)',
+        outcomeText: 'Safe but loses automation value (-6 HP), banking +75 Gold in saved risk.',
+        hpDelta: -6,
+        goldDelta: 75
+      }
+    ]
+  },
+  {
+    id: 'aipc-inc-eval-crisis',
+    trackGroup: 'aipm',
+    title: 'Prompt Tweak Fixed One Bug, Broke 20% of Cases',
+    awsContext: 'A PM edited the system prompt to fix a tone complaint and pushed straight to production after testing 2 examples.',
+    description: 'Enterprise customers report broken JSON outputs across billing workflows.',
+    choices: [
+      {
+        label: 'Block prompt deploys behind a 200-case Golden Eval Suite + CI regression gate',
+        azureAction: 'Systematic Evals Culture',
+        outcomeText: 'Every prompt change is now regression-tested automatically! Upgrade a random card & heal +8 HP.',
+        hpDelta: 8,
+        upgradeRandomCard: true
+      },
+      {
+        label: 'Hotfix the prompt manually and run a 1-week Shadow Mode comparison',
+        azureAction: 'Tactical Recovery',
+        outcomeText: 'Production stabilized cleanly with telemetry! Gain +40 Gold and +1 PM Hint Charge.',
         goldDelta: 40,
         hintDelta: 1
       }

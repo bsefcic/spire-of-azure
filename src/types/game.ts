@@ -66,7 +66,7 @@ export interface EnemyTemplate {
   name: string;
   subtitle: string;
   tier: 'normal' | 'elite' | 'boss';
-  track?: ExamTrack | 'both';
+  track?: ExamTrack | 'both' | 'cloud';
   act?: number;
   maxHp: number;
   intents: EnemyIntent[];
@@ -115,6 +115,7 @@ export interface IncidentChoice {
 
 export interface CloudIncident {
   id: string;
+  trackGroup?: 'cloud' | 'aipm';
   title: string;
   awsContext: string;
   description: string;
@@ -151,8 +152,8 @@ export interface ActiveRun {
   track: ExamTrack | 'mixed';
   classId: ArchitectClassId;
   ascension: number; // 0 = 99.0% SLA .. 5 = 99.999% SLA
-  act: 1 | 2 | 3 | 4 | 5;
-  totalActs: 3 | 5;
+  act: 1 | 2 | 3 | 4 | 5 | 6;
+  totalActs: 3 | 5 | 6;
   hp: number;
   maxHp: number;
   gold: number;

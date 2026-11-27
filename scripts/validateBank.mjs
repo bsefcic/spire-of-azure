@@ -11,6 +11,7 @@ try {
   const { ALL_EXAM_QUESTIONS } = await server.ssrLoadModule('/src/data/allQuestions.ts');
   const { ACT_INTEL_BRIEFINGS } = await server.ssrLoadModule('/src/data/briefings.ts');
   const { ROSETTA_SERVICES, CHEAT_SHEET_TABLES } = await server.ssrLoadModule('/src/data/rosettaCodex.ts');
+  const { AIPC_INTEL_BRIEFINGS, AIPC_ROSETTA_ROWS, AIPC_CHEAT_SHEETS } = await server.ssrLoadModule('/src/data/aipcBriefingsAndCodex.ts');
 
   const seenIds = new Set();
   const seenPrompts = new Set();
@@ -31,7 +32,7 @@ try {
     seenPrompts.add(normPrompt);
 
     if (!q.awsBridgeHint || !q.explanation || !q.awsComparison) {
-      console.error(`Missing explanation/AWS bridge on ${q.id}`);
+      console.error(`Missing explanation/bridge on ${q.id}`);
       errors++;
     }
 
@@ -66,9 +67,10 @@ try {
 
   const az900Count = ALL_EXAM_QUESTIONS.filter((q) => q.track === 'az-900').length;
   const az104Count = ALL_EXAM_QUESTIONS.filter((q) => q.track === 'az-104').length;
+  const aipcCount = ALL_EXAM_QUESTIONS.filter((q) => q.track === 'aipc').length;
 
-  console.log(`Total Questions Validated: ${ALL_EXAM_QUESTIONS.length} (AZ-900: ${az900Count}, AZ-104: ${az104Count})`);
-  console.log(`Briefings: ${ACT_INTEL_BRIEFINGS.length} | Rosetta Rows: ${ROSETTA_SERVICES.length} | Cheat Sheets: ${CHEAT_SHEET_TABLES.length}`);
+  console.log(`Total Questions Validated: ${ALL_EXAM_QUESTIONS.length} (AZ-900: ${az900Count}, AZ-104: ${az104Count}, AIPC: ${aipcCount})`);
+  console.log(`Briefings: ${ACT_INTEL_BRIEFINGS.length + AIPC_INTEL_BRIEFINGS.length} | Rosetta Rows: ${ROSETTA_SERVICES.length + AIPC_ROSETTA_ROWS.length} | Cheat Sheets: ${CHEAT_SHEET_TABLES.length + AIPC_CHEAT_SHEETS.length}`);
   console.log(`Validation Errors: ${errors}`);
   if (errors > 0) process.exitCode = 1;
 } finally {

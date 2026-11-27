@@ -19,6 +19,7 @@ import {
 import { ActIntelBriefing } from '../types/curriculum';
 import { ActiveRun, GameCard, IncidentChoice, MapNode } from '../types/game';
 import { ALL_RELICS } from '../data/gameContent';
+import { getCardDisplayForTrack, getRelicDisplayForTrack, isAiPmTrack } from '../data/pmOverlay';
 import { DOMAIN_META } from '../engine/fsrs';
 import { getEffectiveCardStats } from '../engine/roguelike';
 import { sfx } from '../utils/audioHaptics';
@@ -59,6 +60,8 @@ export const RunMapScreen: React.FC<RunMapScreenProps> = ({
 
   const showAutoBriefing =
     briefing && !run.briefingSeenForAct.includes(run.act) && activeOverlay === 'none';
+
+  const isPm = isAiPmTrack(run.track);
 
   const actDomain = DOMAIN_META.find(
     (d) => d.track === (run.track === 'mixed' ? 'az-104' : run.track) && d.act === run.act
@@ -103,11 +106,11 @@ export const RunMapScreen: React.FC<RunMapScreenProps> = ({
     };
 
     const labelMap = {
-      combat: 'Combat',
+      combat: isPm ? 'Challenge' : 'Combat',
       elite: 'Elite',
-      rest: 'Refactor',
-      shop: 'Market',
-      incident: 'Incident',
+      rest: isPm ? 'Retro' : 'Refactor',
+      shop: isPm ? 'Stack' : 'Market',
+      incident: isPm ? 'Escalate' : 'Incident',
       boss: 'Case Boss'
     };
 
@@ -150,7 +153,7 @@ export const RunMapScreen: React.FC<RunMapScreenProps> = ({
         <div className="mb-3 rounded-2xl border border-sky-500/40 bg-gradient-to-b from-sky-950/40 to-slate-950 p-4">
           <div className="mb-1 flex items-center justify-between">
             <span className="rounded-md bg-sky-500/20 px-2 py-0.5 text-[11px] font-bold uppercase text-sky-300">
-              60-Sec Pre-Act Field Guide • {briefing.examWeight}
+              {isPm ? '60-Sec Module Field Guide' : '60-Sec Pre-Act Field Guide'} • {briefing.examWeight}
             </span>
             <button
               type="button"
@@ -173,7 +176,8 @@ export const RunMapScreen: React.FC<RunMapScreenProps> = ({
               <div className="mb-1 flex flex-wrap items-center justify-between gap-1">
                 <h3 className="text-sm font-extrabold text-sky-300">{card.title}</h3>
                 <span className="rounded-md border border-amber-500/30 bg-amber-950/30 px-2 py-0.5 text-[10px] font-bold text-amber-300">
-                  AWS: {card.awsEquivalent}
+                  {isPm ? 'Classic PM: ' : 'AWS: '}
+                  {card.awsEquivalent}
                 </span>
               </div>
               <p className="mb-2 text-xs font-medium text-slate-200">{card.azureConcept}</p>
@@ -197,7 +201,7 @@ export const RunMapScreen: React.FC<RunMapScreenProps> = ({
             onClick={closeBriefing}
             className="w-full rounded-2xl bg-sky-500 py-3.5 text-sm font-black text-slate-950 shadow-lg shadow-sky-500/25 active:scale-98"
           >
-            Enter Act {run.act} Spire Map →
+            Enter {isPm ? `Module ${run.act} Sprint Map` : `Act ${run.act} Spire Map`} →
           </button>
         </div>
       </div>
@@ -213,7 +217,7 @@ export const RunMapScreen: React.FC<RunMapScreenProps> = ({
           <div className="mb-2 flex items-center gap-2 text-purple-300">
             <AlertTriangle className="h-5 w-5" />
             <span className="text-xs font-extrabold uppercase tracking-wider">
-              Live Migration Incident
+              {isPm ? 'Live Product Escalation' : 'Live Migration Incident'}
             </span>
           </div>
           <h2 className="mb-2 text-lg font-black text-white">{inc.title}</h2>
@@ -273,10 +277,14 @@ export const RunMapScreen: React.FC<RunMapScreenProps> = ({
         <div className="rounded-2xl border border-emerald-500/40 bg-slate-950 p-4">
           <div className="mb-2 flex items-center gap-2 text-emerald-400">
             <Wrench className="h-5 w-5" />
-            <h2 className="text-lg font-black text-white">Architecture Refactor Window</h2>
+            <h2 className="text-lg font-black text-white">
+              {isPm ? 'Sprint Retro & Calibration' : 'Architecture Refactor Window'}
+            </h2>
           </div>
           <p className="mb-4 text-xs text-slate-300">
-            Scheduled maintenance window before the next wave. Restore SLA Uptime or upgrade a card in your deck.
+            {isPm
+              ? 'Take a breather between product sprints. Restore Stakeholder Trust or upgrade a card in your deck.'
+              : 'Scheduled maintenance window before the next wave. Restore SLA Uptime or upgrade a card in your deck.'}
           </p>
 
           {!upgradingMode ? (
@@ -292,7 +300,7 @@ export const RunMapScreen: React.FC<RunMapScreenProps> = ({
               >
                 <div>
                   <div className="text-sm font-extrabold text-emerald-300">
-                    Restore SLA Uptime (+{healAmount} HP)
+                    {isPm ? `Restore Stakeholder Trust (+${healAmount} HP)` : `Restore SLA Uptime (+${healAmount} HP)`}
                   </div>
                   <div className="text-xs text-slate-400">
                     Current HP: {run.hp} / {run.maxHp}
@@ -312,7 +320,7 @@ export const RunMapScreen: React.FC<RunMapScreenProps> = ({
               >
                 <div>
                   <div className="text-sm font-extrabold text-sky-300">
-                    Upgrade SKU Card (+ Version)
+                    {isPm ? 'Upgrade Strategy Card (+ Version)' : 'Upgrade SKU Card (+ Version)'}
                   </div>
                   <div className="text-xs text-slate-400">
                     Permanently boost 1 card in your deck ({upgradableCards.length} eligible)
@@ -334,7 +342,10 @@ export const RunMapScreen: React.FC<RunMapScreenProps> = ({
                 </button>
               </div>
               <div className="max-h-[60dvh] space-y-2 overflow-y-auto pr-1">
-                {upgradableCards.map((c) => (
+                {upgradableCards.map((c) => {
+                  const disp = getCardDisplayForTrack(c, run.track);
+                  const dispUp = getCardDisplayForTrack({ ...c, upgraded: true }, run.track);
+                  return (
                   <button
                     key={c.uid}
                     type="button"
@@ -347,7 +358,7 @@ export const RunMapScreen: React.FC<RunMapScreenProps> = ({
                   >
                     <div className="flex items-center justify-between text-xs font-bold">
                       <span className="text-slate-300">
-                        {c.name} → <span className="text-emerald-300">{c.upgradedName}</span>
+                        {disp.name} → <span className="text-emerald-300">{dispUp.name}</span>
                       </span>
                       <span className="rounded bg-sky-500/20 px-2 py-0.5 text-sky-300">
                         Cost {c.cost}
@@ -360,7 +371,8 @@ export const RunMapScreen: React.FC<RunMapScreenProps> = ({
                       Upgraded: {c.upgradedDescription}
                     </div>
                   </button>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}
@@ -377,7 +389,9 @@ export const RunMapScreen: React.FC<RunMapScreenProps> = ({
           <div className="mb-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <ShoppingBag className="h-5 w-5 text-sky-400" />
-              <h2 className="text-lg font-black text-white">Azure Marketplace</h2>
+              <h2 className="text-lg font-black text-white">
+                {isPm ? 'AI Tooling Marketplace' : 'Azure Marketplace'}
+              </h2>
             </div>
             <span className="flex items-center gap-1 rounded-lg bg-amber-500/20 px-2.5 py-1 text-xs font-extrabold text-amber-300">
               <Coins className="h-3.5 w-3.5" /> {run.gold} Gold
@@ -393,6 +407,7 @@ export const RunMapScreen: React.FC<RunMapScreenProps> = ({
                 <div className="space-y-2">
                   {(run.shopCards || []).map((item, idx) => {
                     const st = getEffectiveCardStats(item.card);
+                    const disp = getCardDisplayForTrack(item.card, run.track);
                     const canAfford = run.gold >= item.price && !item.sold;
                     return (
                       <button
@@ -407,7 +422,7 @@ export const RunMapScreen: React.FC<RunMapScreenProps> = ({
                       >
                         <div>
                           <div className="text-xs font-extrabold text-white">
-                            {st.name}{' '}
+                            {disp.name}{' '}
                             <span className="text-[10px] font-normal text-sky-300">
                               ({st.cost} ⚡)
                             </span>
@@ -426,12 +441,13 @@ export const RunMapScreen: React.FC<RunMapScreenProps> = ({
               {(run.shopRelics || []).length > 0 && (
                 <div>
                   <h3 className="mb-1.5 text-xs font-bold uppercase tracking-wider text-slate-400">
-                    Architecture Relics
+                    {isPm ? 'Product Relics' : 'Architecture Relics'}
                   </h3>
                   <div className="space-y-2">
                     {(run.shopRelics || []).map((sr, idx) => {
-                      const relic = ALL_RELICS.find((r) => r.id === sr.relicId);
-                      if (!relic) return null;
+                      const rawRelic = ALL_RELICS.find((r) => r.id === sr.relicId);
+                      if (!rawRelic) return null;
+                      const relic = getRelicDisplayForTrack(rawRelic, run.track);
                       const canAfford = run.gold >= sr.price && !sr.sold;
                       return (
                         <button
@@ -503,6 +519,7 @@ export const RunMapScreen: React.FC<RunMapScreenProps> = ({
               <div className="max-h-[55dvh] space-y-1.5 overflow-y-auto">
                 {run.deck.map((c) => {
                   const st = getEffectiveCardStats(c);
+                  const disp = getCardDisplayForTrack(c, run.track);
                   return (
                     <button
                       key={c.uid}
@@ -514,7 +531,7 @@ export const RunMapScreen: React.FC<RunMapScreenProps> = ({
                       }}
                       className="flex w-full items-center justify-between rounded-xl border border-slate-800 bg-slate-900 px-3 py-2 text-left text-xs"
                     >
-                      <span className="font-bold text-white">{st.name}</span>
+                      <span className="font-bold text-white">{disp.name}</span>
                       <span className="text-slate-400">{st.description}</span>
                     </button>
                   );
@@ -546,6 +563,7 @@ export const RunMapScreen: React.FC<RunMapScreenProps> = ({
         <div className="grid grid-cols-2 gap-2">
           {run.deck.map((c: GameCard) => {
             const st = getEffectiveCardStats(c);
+            const disp = getCardDisplayForTrack(c, run.track);
             return (
               <div
                 key={c.uid}
@@ -557,7 +575,7 @@ export const RunMapScreen: React.FC<RunMapScreenProps> = ({
                       c.upgraded ? 'text-emerald-300' : 'text-white'
                     }`}
                   >
-                    {st.name}
+                    {disp.name}
                   </span>
                   <span className="rounded-full bg-sky-500/20 px-1.5 py-0.5 text-[10px] font-bold text-sky-300">
                     {st.cost} ⚡
@@ -582,10 +600,10 @@ export const RunMapScreen: React.FC<RunMapScreenProps> = ({
         <div className="flex items-center justify-between rounded-2xl border border-slate-800 bg-slate-950 px-3 py-2.5">
           <div>
             <div className="text-[11px] font-bold uppercase tracking-wider text-sky-400">
-              {run.track.toUpperCase()} • Act {run.act} of {run.totalActs}
+              {isPm ? `AIPC™ • Module ${run.act} of ${run.totalActs}` : `${run.track.toUpperCase()} • Act ${run.act} of ${run.totalActs}`}
             </div>
             <h2 className="text-sm font-extrabold text-white">
-              {actDomain ? actDomain.shortName : 'Cloud Spire'}
+              {actDomain ? actDomain.shortName : isPm ? 'AI Product Spire' : 'Cloud Spire'}
             </h2>
           </div>
 
@@ -611,7 +629,7 @@ export const RunMapScreen: React.FC<RunMapScreenProps> = ({
               className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-sky-500/35 bg-sky-950/30 py-2 text-xs font-bold text-sky-300 active:scale-98"
             >
               <BookOpen className="h-3.5 w-3.5" />
-              <span>Act {run.act} Intel Guide</span>
+              <span>{isPm ? `Mod ${run.act} Intel Guide` : `Act ${run.act} Intel Guide`}</span>
             </button>
           )}
           <button
