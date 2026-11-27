@@ -63,11 +63,17 @@ import { SaveBackupModal } from './components/SaveBackupModal';
 
 type ScreenView = 'hub' | 'run' | 'codex' | 'drill' | 'mock' | 'ccoe' | 'backup' | 'run-victory';
 
+const ALL_BRIEFINGS = [...ACT_INTEL_BRIEFINGS, ...AIPC_INTEL_BRIEFINGS];
+const ALL_ROSETTA_ROWS = [...ROSETTA_SERVICES, ...AIPC_ROSETTA_ROWS];
+const ALL_CHEAT_SHEETS = [...CHEAT_SHEET_TABLES, ...AIPC_CHEAT_SHEETS];
+
 export const App: React.FC = () => {
   const [profile, setProfile] = useState<PlayerSaveProfile>(() => createDefaultProfile());
   const [loaded, setLoaded] = useState(false);
   const [view, setView] = useState<ScreenView>('hub');
-  const [runModeTrack, setRunModeTrack] = useState<ExamTrack | 'mixed'>('az-900');
+  const [runModeTrack, setRunModeTrack] = useState<ExamTrack | 'mixed'>(
+    () => createDefaultProfile().selectedTrack
+  );
   const [victoryCreditsEarned, setVictoryCreditsEarned] = useState(0);
   const recentQuestionsRef = useRef<string[]>([]);
 
@@ -499,23 +505,10 @@ export const App: React.FC = () => {
     );
   }
 
-  const allBriefings = useMemo(
-    () => [...ACT_INTEL_BRIEFINGS, ...AIPC_INTEL_BRIEFINGS],
-    []
-  );
-  const allRosettaRows = useMemo(
-    () => [...ROSETTA_SERVICES, ...AIPC_ROSETTA_ROWS],
-    []
-  );
-  const allCheatSheets = useMemo(
-    () => [...CHEAT_SHEET_TABLES, ...AIPC_CHEAT_SHEETS],
-    []
-  );
-
   const isHubAiPm = isAiPmTrack(activeExamTrackForHub);
 
   const currentActBriefing = profile.activeRun
-    ? allBriefings.find(
+    ? ALL_BRIEFINGS.find(
         (b) =>
           b.track ===
             (profile.activeRun!.track === 'mixed' ? 'az-104' : profile.activeRun!.track) &&
@@ -631,9 +624,9 @@ export const App: React.FC = () => {
         )
       ) : view === 'codex' ? (
         <BriefingsAndCodexModal
-          rosettaRows={allRosettaRows}
-          cheatSheets={allCheatSheets}
-          briefings={allBriefings}
+          rosettaRows={ALL_ROSETTA_ROWS}
+          cheatSheets={ALL_CHEAT_SHEETS}
+          briefings={ALL_BRIEFINGS}
           initialGroup={isHubAiPm ? 'aipm' : 'cloud'}
           onClose={() => setView('hub')}
         />

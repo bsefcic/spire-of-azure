@@ -1,8 +1,6 @@
 import { get, set } from 'idb-keyval';
 import { PlayerSaveProfile } from '../types/game';
 
-const SAVE_KEY = 'spire_of_azure_save_v1';
-const LOCAL_FALLBACK_KEY = 'spire_of_azure_save_mirror_v1';
 export const CURRENT_SCHEMA_VERSION = 1;
 
 function getDefaultTrackForHost(): 'az-900' | 'aipc' {
@@ -14,6 +12,19 @@ function getDefaultTrackForHost(): 'az-900' | 'aipc' {
     }
   }
   return 'az-900';
+}
+
+function getStorageKeys() {
+  if (getDefaultTrackForHost() === 'aipc') {
+    return {
+      idbKey: 'spire_of_ai_product_save_v1',
+      mirrorKey: 'spire_of_ai_product_save_mirror_v1'
+    };
+  }
+  return {
+    idbKey: 'spire_of_azure_save_v1',
+    mirrorKey: 'spire_of_azure_save_mirror_v1'
+  };
 }
 
 export function createDefaultProfile(): PlayerSaveProfile {
@@ -75,8 +86,9 @@ export function normalizeProfile(raw: Partial<PlayerSaveProfile> | null | undefi
 }
 
 export async function loadProfile(): Promise<PlayerSaveProfile> {
+  const { idbKey, mirrorKey } = getStorageKeys();
   try {
-    const idbData = await get<PlayerSaveProfile>(SAVE_KEY);
+    const idbData = await get<PlayerSaveProfile>(idbKey);
     if (idbData) {
       return normalizeProfile(idbData);
     }
@@ -85,7 +97,7 @@ export async function loadProfile(): Promise<PlayerSaveProfile> {
   }
 
   try {
-    const rawStr = localStorage.getItem(LOCAL_FALLBACK_KEY);
+    const rawStr = localStorage.getItem(mirrorKey);
     if (rawStr) {
       return normalizeProfile(JSON.parse(rawStr));
     }
@@ -99,19 +111,20 @@ export async function loadProfile(): Promise<PlayerSaveProfile> {
 }
 
 export async function saveProfile(profile: PlayerSaveProfile): Promise<void> {
+  const { idbKey, mirrorKey } = getStorageKeys();
   const updated: PlayerSaveProfile = {
     ...profile,
     updatedAt: Date.now()
   };
 
   try {
-    localStorage.setItem(LOCAL_FALLBACK_KEY, JSON.stringify(updated));
+    localStorage.setItem(mirrorKey, JSON.stringify(updated));
   } catch {
     // Ignore storage quota warning on mirror
   }
 
   try {
-    await set(SAVE_KEY, updated);
+    await set(idbKey, updated);
   } catch {
     // Mirror already persisted in localStorage
   }
